@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <!-- <script src="http://requirejs.org/docs/release/2.2.0/minified/require.js"></script> -->
+    <!-- <script src="./app.js"></script>
+    <script src="./db.js"></script> -->
+
+  </head>
+  <body>
+    <p>
+    <form id="calc" action="index.html">
+      <input type="text" id="symbol" value="QQQ"/>
+      <input type="submit" value="Search">
+    </form>
+    </p>
+
+<!-- Plots go in blank <div> elements.
+    You can size them in the plot layout,
+    or give the div a size as shown here.
+-->
+    <div id="tester" style="width:90%;height:250px;"></div>
+  </body>
+  <script type="text/javascript">
+    $(document).ready(function() {
+
+      $('#calc').on('submit', function(event) {
+        event.preventDefault();
+        console.log('hello world');
+        var data = $('#symbol')
+        console.log(data[0].value);
+      });
+    });
+  </script>
+</html>
