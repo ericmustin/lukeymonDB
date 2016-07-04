@@ -79,7 +79,17 @@ app.listen(3000, function() {
     console.log('App Listening on port 3000');
 });
 
-app.post('/', function(req, res) {
+app.get('/', function(req, res) {
+    var symbolList = [];
+    for (var i = 0; i < data.length; i++) {
+        if (symbolList.indexOf(data[i]['Symbol']) === -1) {
+            symbolList.push(data[i]['Symbol']);
+        }
+    }
+    res.send({ data: symbolList });
+});
+
+app.post('/api', function(req, res) {
     var symbolLookUp = function(symbol, data) {
         var tempData = {};
         tempData.symbol = symbol || null;
