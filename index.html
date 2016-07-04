@@ -1,37 +1,96 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  <!-- Plotly.js -->
+
+<head>
+    <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
-    <!-- <script src="http://requirejs.org/docs/release/2.2.0/minified/require.js"></script> -->
-    <!-- <script src="./app.js"></script>
-    <script src="./db.js"></script> -->
+</head>
 
-  </head>
-  <body>
+<body>
     <p>
-    <form id="calc" action="index.html">
-      <input type="text" id="symbol" value="QQQ"/>
-      <input type="submit" value="Search">
-    </form>
+        <form id="calc" action="index.html">
+            <input type="text" id="symbol" value="QQQ" />
+            <input type="submit" value="Search">
+        </form>
     </p>
-
-<!-- Plots go in blank <div> elements.
+    <!-- Plots go in blank <div> elements.
     You can size them in the plot layout,
-    or give the div a size as shown here.
--->
-    <div id="tester" style="width:90%;height:250px;"></div>
-  </body>
-  <script type="text/javascript">
-    $(document).ready(function() {
-
-      $('#calc').on('submit', function(event) {
+    or give the div a size as shown here.-->
+    <div id="title"></div>
+    <div id="tester" style="width:90%;height:750px;"></div>
+</body>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#calc').on('submit', function(event) {
         event.preventDefault();
-        console.log('hello world');
         var data = $('#symbol')
         console.log(data[0].value);
-      });
+        $.post("http://127.0.0.1:3000/", {
+            symbol: data[0].value
+        }).done(function(response, errorHandler) {
+            if (errorHandler !== 'success') {
+                // console.log('error');
+                // console.log(errorHandler);
+            } else {
+                if (response.error) {
+                    // console.log("response is: ", response.error);
+                } else {
+                    var response = JSON.parse(response);
+
+                    var data = [{
+                        x: response.outputIds,
+                        y: response.outputPrices,
+                        type: "scatter"
+                    }];
+                    var axisXTemplate = {
+                        showgrid: false,
+                        zeroline: false,
+                        nticks: 1,
+                        showline: true,
+                        title: "Time",
+                        mirror: 'all'
+                    };
+                    var axisYTemplate = {
+                        showgrid: false,
+                        zeroline: true,
+                        nticks: 10,
+                        showline: true,
+                        title: "Price",
+                        mirror: 'all'
+                    };
+                    var layout = {
+                        xaxis: axisXTemplate,
+                        yaxis: axisYTemplate
+                    };
+
+                    TESTER = document.getElementById('tester');
+                    Plotly.plot(TESTER, data, layout);
+
+                    TITLE = document.getElementById('title');
+
+                    TITLE.innerHTML = "Last Trade: " +
+                        response.topTrade.Symbol +
+                        " " +
+                        response.topTrade.Expiration +
+                        " " +
+                        response.topTrade.Strike +
+                        " r/c traded " +
+                        response.topTrade.Price +
+                        " " + response.topTrade.Type +
+                        " " +
+                        response.topTrade.Size +
+                        "x. Average Price: " +
+                        response.avgPx.toFixed(4) +
+                        ". Total Size: " +
+                        response.totalSize +
+                        "x";
+                }
+
+            }
+        });
     });
-  </script>
+});
+</script>
+
 </html>

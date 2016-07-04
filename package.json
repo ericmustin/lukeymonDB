@@ -8,9 +8,12 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha --reporter spec ./tests/tests.js",
-    "start": "node ./library.js"
+    "start": "node ./app.js"
   },
   "dependencies": {
+    "body-parser": "^1.15.2",
+    "imap": "^0.8.17",
+    "mailparser": "^0.6.0",
     "plotly": "^1.0.6"
   },
   "devDependencies": {
