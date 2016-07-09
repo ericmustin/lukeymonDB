@@ -20,7 +20,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     var symbolList = [];
-    $.get("http://127.0.0.1:3000/").done(function(response, error) {
+    $.get("/api").done(function(response, error) {
         symbolList = response.data.sort();
         symbolList.forEach(function(newSymbol) {
             var opt = document.createElement('option');
@@ -39,7 +39,7 @@ $(document).ready(function() {
     $('#calc').on('submit', function(event) {
         event.preventDefault();
         var data = $('#symbol')
-        $.post("http://127.0.0.1:3000/api", {
+        $.post("/input", {
             symbol: data[0].value
         }).done(function(response, errorHandler) {
             if (errorHandler !== 'success') {

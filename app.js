@@ -149,7 +149,8 @@ app.listen(3000, function() {
     console.log('App Listening on port 3000');
 });
 
-app.get('/', function(req, res) {
+app.use(express.static('./index.html'));
+app.get('/input', function(req, res) {
     dataInit.retrieveTrades(res);
     // var symbolList = [];
     // for (var i = 0; i < dataInit.length; i++) {
