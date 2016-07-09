@@ -148,7 +148,9 @@ app.use(function(req, res, next) {
 
 app.use(express.static(__dirname+'/./public'));
 
-app.listen(3000, function() {
+app.set('port', (process.env.PORT || 3000) );
+
+app.listen(app.get('port'), function() {
     console.log('App Listening on port 3000');
 });
 
