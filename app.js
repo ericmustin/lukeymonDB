@@ -1,35 +1,35 @@
-var readline = require('readline');
-var data = require("./db.js"); //import from db.js, do not upload data to git
-// require("./controller.js").inputTrades(data);
-// var dataInit = require("./controller.js");
-
 var express = require('express');
+var partials = require('express-partials');
+var readline = require('readline');
+var data = require("./db.js");
 var bodyParser = require('body-parser');
 var Imap = require('imap');
 var MailParser = require('mailparser');
 var mailparser = new MailParser.MailParser();
 
+//import from db.js, do not upload data to git
+// require("./controller.js").inputTrades(data);
+// var dataInit = require("./controller.js");
 
-
-var updateDB = function(emailBody,database) {
+var updateDB = function(emailBody, database) {
     var tradeStringArray = [];
     var tradeSorted = [];
     var currentStart = 0;
-    for(var i =0; i < emailBody.length; i++) {
-        if(emailBody[i] === "x") {
-            tradeStringArray.push(emailBody.slice(currentStart,i));
-            currentStart = i+1;
+    for (var i = 0; i < emailBody.length; i++) {
+        if (emailBody[i] === "x") {
+            tradeStringArray.push(emailBody.slice(currentStart, i));
+            currentStart = i + 1;
         }
     }
     console.log(tradeStringArray);
 
-    for(var i =0; i < tradeStringArray.length; i++) {
+    for (var i = 0; i < tradeStringArray.length; i++) {
         var currentStart = 0;
         var tempArray = [];
-        for(var j = 0; j <= tradeStringArray[i].length; j++) {
-            if(tradeStringArray[i][j] === " " || j === tradeStringArray[i].length) {
-                tempArray.push(tradeStringArray[i].slice(currentStart,j));
-                currentStart = j+1;
+        for (var j = 0; j <= tradeStringArray[i].length; j++) {
+            if (tradeStringArray[i][j] === " " || j === tradeStringArray[i].length) {
+                tempArray.push(tradeStringArray[i].slice(currentStart, j));
+                currentStart = j + 1;
             }
         }
         tradeSorted.push(tempArray);
@@ -38,8 +38,8 @@ var updateDB = function(emailBody,database) {
     var currentID = 593;
     var uploadDBTrades = [];
     //  [ 'SMH', 'Jul', '60', 'r/c', 'traded', '.04', 'inv' ]
-//{ "Date": "04/24/14", "Symbol": "SPY", "Expiration": "Jun", "Strike": 200, "Price": 0.83, "Type": "inv", "Size": 10000, "ID": 1 }
-    for(var i = 0; i < tradeSorted.length; i++) {
+    //{ "Date": "04/24/14", "Symbol": "SPY", "Expiration": "Jun", "Strike": 200, "Price": 0.83, "Type": "inv", "Size": 10000, "ID": 1 }
+    for (var i = 0; i < tradeSorted.length; i++) {
         var tempObject = {};
         tempObject['Date'] = "04/25/14";
         tempObject.Symbol = tradeSorted[i][0];
@@ -61,7 +61,7 @@ mailparser.on("end", function(mail_object) {
     // console.log("From:", mail_object.from); //[{address:'sender@example.com',name:'Sender Name'}]
     // console.log("Subject:", mail_object.subject); // Hello world!
     // console.log("Text body:", mail_object.text); // How are you today?
-    updateDB(mail_object.text);
+    // updateDB(mail_object.text);
 
 });
 
@@ -126,7 +126,7 @@ if (config.emailPassword) {
     });
 
     imap.once('error', function(err) {
-        console.log(1,err);
+        console.log(1, err);
     });
 
     imap.once('end', function() {
@@ -136,6 +136,7 @@ if (config.emailPassword) {
     imap.connect();
 }
 
+app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -145,18 +146,21 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.use(express.static(__dirname+'/./public'));
+
 app.listen(3000, function() {
     console.log('App Listening on port 3000');
 });
 
-app.use(express.static('./index.html'));
+
 
 app.get('/input', function(req, res) {
+    console.log('input');
     // dataInit.retrieveTrades(res);
     var symbolList = [];
     for (var i = 0; i < data.length; i++) {
-        if (symbolList.indexOf(data[i]['symbol']) === -1) {
-            symbolList.push(data[i]['symbol']);
+        if (symbolList.indexOf(data[i]['Symbol']) === -1) {
+            symbolList.push(data[i]['Symbol']);
         }
     }
     res.send({ data: symbolList });
