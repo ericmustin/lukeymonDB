@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 
+
 mongoURI = process.env.MONGOLAB_URI || 'mongodb://localhost/lukeymonDb';
 mongoose.connect(mongoURI, function(err, res) {
   if (err) {

@@ -1,7 +1,7 @@
 var readline = require('readline');
 var data = require("./db.js"); //import from db.js, do not upload data to git
 // require("./controller.js").inputTrades(data);
-var dataInit = require("./controller.js");
+// var dataInit = require("./controller.js");
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -150,15 +150,16 @@ app.listen(3000, function() {
 });
 
 app.use(express.static('./index.html'));
+
 app.get('/input', function(req, res) {
-    dataInit.retrieveTrades(res);
-    // var symbolList = [];
-    // for (var i = 0; i < dataInit.length; i++) {
-    //     if (symbolList.indexOf(dataInit[i]['symbol']) === -1) {
-    //         symbolList.push(dataInit[i]['symbol']);
-    //     }
-    // }
-    // res.send({ data: symbolList });
+    // dataInit.retrieveTrades(res);
+    var symbolList = [];
+    for (var i = 0; i < data.length; i++) {
+        if (symbolList.indexOf(data[i]['symbol']) === -1) {
+            symbolList.push(data[i]['symbol']);
+        }
+    }
+    res.send({ data: symbolList });
 });
 
 app.post('/api', function(req, res) {

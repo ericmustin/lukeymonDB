@@ -2,6 +2,7 @@ var Trades = require("./database/model.js");
 
 module.exports = {
     retrieveTrades: function(res) {
+        if()
         var trades = Trades.find({}).exec(function(err, found) {
             if (err) {
                 console.log('controller error');
