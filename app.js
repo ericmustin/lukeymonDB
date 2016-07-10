@@ -21,7 +21,7 @@ var updateDB = function(emailBody, database) {
             currentStart = i + 1;
         }
     }
-    console.log(tradeStringArray);
+    // console.log(tradeStringArray);
 
     for (var i = 0; i < tradeStringArray.length; i++) {
         var currentStart = 0;
@@ -34,7 +34,7 @@ var updateDB = function(emailBody, database) {
         }
         tradeSorted.push(tempArray);
     }
-    console.log(tradeSorted);
+    // console.log(tradeSorted);
     var currentID = 593;
     var uploadDBTrades = [];
     //  [ 'SMH', 'Jul', '60', 'r/c', 'traded', '.04', 'inv' ]
@@ -53,7 +53,7 @@ var updateDB = function(emailBody, database) {
         uploadDBTrades.push(tempObject);
         data.push(tempObject)
     }
-    console.log(uploadDBTrades);
+    // console.log(uploadDBTrades);
 };
 // setup an event listener when the parsing finishes
 mailparser.on("end", function(mail_object) {
@@ -101,7 +101,7 @@ if (config.emailPassword) {
                 struct: true
             });
             f.on('message', function(msg, seqno) {
-                console.log('Message #%d', seqno);
+                // console.log('Message #%d', seqno);
                 var prefix = '(#' + seqno + ') ';
                 msg.on('body', function(stream, info) {
                     buffer = '';
@@ -146,25 +146,29 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(express.static(__dirname+'/./public'));
+app.use(express.static(__dirname + '/./public'));
 
-app.set('port', (process.env.PORT || 3000) );
+app.set('port', (process.env.PORT || 3000));
 
 app.listen(app.get('port'), function() {
     console.log('App Listening on port 3000');
 });
 
-
-
-app.get('/input', function(req, res) {
-    console.log('input');
-    // dataInit.retrieveTrades(res);
+var getTradeSymbols = function() {
     var symbolList = [];
     for (var i = 0; i < data.length; i++) {
         if (symbolList.indexOf(data[i]['Symbol']) === -1) {
             symbolList.push(data[i]['Symbol']);
         }
     }
+    return symbolList
+};
+
+
+app.get('/input', function(req, res) {
+    console.log('input');
+    // dataInit.retrieveTrades(res);
+    var symbolList = getTradeSymbols();
     res.send({ data: symbolList });
 });
 
@@ -209,38 +213,47 @@ app.post('/api', function(req, res) {
                 }
             }
         }
-        matchingTrades = resultObject.results.filter(function(trade) {
+        resultObject.matchingTrades = resultObject.results.filter(function(trade) {
             return trade['Strike'] === strike && trade['Expiration'] === expiration;
         });
-        return matchingTrades;
+
+        return resultObject;
 
     };
 
     console.log(req.body.symbol)
 
     var userInput = req.body.symbol;
-    var displayText;
+    var displayObject = {};
     var responseObject = {};
     responseObject.output = [];
     responseObject.outputDates = [];
     responseObject.outputPrices = [];
     responseObject.outputIds = [];
     responseObject.outputStrings = [];
+    responseObject.outputAllTrades = [];
+    responseObject.outputAllDates = [];
+    responseObject.outputAllPrices = [];
+    responseObject.outputAllIds = [];
+    responseObject.outputAllStrings = [];
 
+    var validSymbolArray = getTradeSymbols();
 
-    console.log(typeof userInput);
+    // console.log(typeof userInput);
 
-    if (typeof userInput !== 'string') {
+    if (typeof userInput !== 'string' || validSymbolArray.indexOf(userInput) === -1) {
+
         console.log('fail');
-        res.send(200, { "error": true });
+        res.send(200, JSON.stringify({ "error": true }));
+        return;
     } else {
-        displayText = displayData(symbolLookUp(userInput, data));
-        if (typeof displayText === 'String') {
-            console.log(displayText);
+        displayObject = displayData(symbolLookUp(userInput, data));
+        if (typeof displayObject.matchingTrades === 'String') {
+            // console.log(displayObject.matchingTrades);
             res.send(200, { "error": true });
-        } else if (Array.isArray(displayText)) {
-            console.log(displayText);
-            displayText.forEach(function(trade) {
+        } else if (Array.isArray(displayObject.matchingTrades)) {
+            // console.log(displayObject.matchingTrades);
+            displayObject.matchingTrades.forEach(function(trade) {
                 responseObject.output.push(trade);
                 var tempString = '';
                 for (x in trade) {
@@ -262,20 +275,44 @@ app.post('/api', function(req, res) {
                 }
                 responseObject.outputStrings.push(tempString);
             });
-            responseObject.topTrade = displayText[displayText.length - 1];
-            responseObject.totalSize = displayText.reduce(function(a, b) {
+
+            displayObject.results.forEach(function(trade) {
+                responseObject.outputAllTrades.push(trade);
+                var tempString = '';
+                for (x in trade) {
+                    if (x === 'Date') {
+                        responseObject.outputAllDates.push(Date(trade[x]));
+                    }
+                    if (x === 'Price') {
+                        if (trade['Type'] === 'inv') {
+                            responseObject.outputAllPrices.push(trade[x] * -1);
+                        } else {
+                            responseObject.outputAllPrices.push(trade[x]);
+                        }
+                    }
+                    if (x === 'ID') {
+                        responseObject.outputAllIds.push(trade[x]);
+                    }
+                    tempString = tempString + ' ' + x + ':' + ' ' + trade[x];
+
+                }
+                responseObject.outputAllStrings.push(tempString);
+            });
+
+            responseObject.topTrade = displayObject.matchingTrades[displayObject.matchingTrades.length - 1];
+            responseObject.totalSize = displayObject.matchingTrades.reduce(function(a, b) {
                 return a + b['Size'];
             }, 0);
 
             responseObject.avgPx = 0;
-            displayText.forEach(function(trade) {
+            displayObject.matchingTrades.forEach(function(trade) {
                 if (trade['Type'] === 'inv') {
                     responseObject.avgPx += trade['Price'] * -1 * (trade['Size'] / responseObject.totalSize)
                 } else {
                     responseObject.avgPx += trade['Price'] * (trade['Size'] / responseObject.totalSize)
                 }
             });
-            console.log('avg price on this line: ', responseObject.avgPx);
+            // console.log('avg price on this line: ', responseObject.avgPx);
 
 
         } else {
@@ -284,7 +321,7 @@ app.post('/api', function(req, res) {
         }
     }
 
-    console.log(responseObject);
+    // console.log(responseObject);
 
     res.send(200, JSON.stringify(responseObject));
 });
