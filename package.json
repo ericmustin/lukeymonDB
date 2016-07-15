@@ -10,11 +10,12 @@
     "start": "node ./app.js"
   },
   "dependencies": {
-    "express": "~4.0.0",
     "body-parser": "^1.15.2",
+    "express": "~4.0.0",
     "express-partials": "^0.3.0",
     "imap": "^0.8.17",
     "mailparser": "^0.6.0",
-    "mongoose": "^4.5.3"
+    "mongoose": "^4.5.3",
+    "request": "^2.73.0"
   }
 }

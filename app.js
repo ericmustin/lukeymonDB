@@ -2,6 +2,7 @@ var express = require('express');
 var partials = require('express-partials');
 var readline = require('readline');
 var data = require("./db.js");
+var calender = require("./calender.js");
 var bodyParser = require('body-parser');
 var Imap = require('imap');
 var MailParser = require('mailparser');
@@ -193,11 +194,12 @@ app.post('/api', function(req, res) {
     };
 
     var displayData = function(resultObject) {
-        var tradeDate, expiration, strike, price, type, size;
+        var tradeDate, expiration, strike, price, type, size, stockPriceInfo;
         var timestamp = 0;
         var matchingTrades = [];
         var symbol = resultObject.symbol || 'Not Found';
 
+        // calender.stockPriceInfo()
         if (!resultObject.match) {
             return 'No Match, Please try again';
         } else {
@@ -253,6 +255,20 @@ app.post('/api', function(req, res) {
             res.send(200, { "error": true });
         } else if (Array.isArray(displayObject.matchingTrades)) {
             // console.log(displayObject.matchingTrades);
+            responseObject.topTrade = displayObject.matchingTrades[displayObject.matchingTrades.length - 1];
+            responseObject.totalSize = displayObject.matchingTrades.reduce(function(a, b) {
+                return a + b['Size'];
+            }, 0);
+
+            responseObject.avgPx = 0;
+            displayObject.matchingTrades.forEach(function(trade) {
+                if (trade['Type'] === 'inv') {
+                    responseObject.avgPx += trade['Price'] * -1 * (trade['Size'] / responseObject.totalSize)
+                } else {
+                    responseObject.avgPx += trade['Price'] * (trade['Size'] / responseObject.totalSize)
+                }
+            });
+
             displayObject.matchingTrades.forEach(function(trade) {
                 responseObject.output.push(trade);
                 var tempString = '';
@@ -275,53 +291,69 @@ app.post('/api', function(req, res) {
                 }
                 responseObject.outputStrings.push(tempString);
             });
-
+            var promiseArray = [];
             displayObject.results.forEach(function(trade) {
-                responseObject.outputAllTrades.push(trade);
-                var tempString = '';
-                for (x in trade) {
-                    if (x === 'Date') {
-                        responseObject.outputAllDates.push(Date(trade[x]));
-                    }
-                    if (x === 'Price') {
-                        if (trade['Type'] === 'inv') {
-                            responseObject.outputAllPrices.push(trade[x] * -1);
-                        } else {
-                            responseObject.outputAllPrices.push(trade[x]);
+                console.log('making promise')
+
+                var promise = new Promise(function(resolve, reject) {
+
+
+                    var tempString = '';
+                    for (x in trade) {
+                        if (x === 'Date') {
+                            responseObject.outputAllDates.push(Date(trade[x]));
                         }
-                    }
-                    if (x === 'ID') {
-                        responseObject.outputAllIds.push(trade[x]);
-                    }
-                    tempString = tempString + ' ' + x + ':' + ' ' + trade[x];
+                        if (x === 'Price') {
+                            if (trade['Type'] === 'inv') {
+                                responseObject.outputAllPrices.push(trade[x] * -1);
+                            } else {
+                                responseObject.outputAllPrices.push(trade[x]);
+                            }
+                        }
+                        if (x === 'ID') {
+                            responseObject.outputAllIds.push(trade[x]);
+                        }
 
-                }
-                responseObject.outputAllStrings.push(tempString);
+                        tempString = tempString + ' ' + x + ':' + ' ' + trade[x];
+
+                    }
+                    responseObject.outputAllStrings.push(tempString);
+
+                    responseObject.outputAllTrades.push(trade);
+
+                    var dateObject = {};
+                    dateObject.month = trade["Date"].slice(0, 2);
+                    dateObject.day = Number(trade["Date"].slice(3, 5));
+                    dateObject.year = Number(trade["Date"].slice(6, 8));
+                    var tempAnswer = calender.stockPriceInfo(trade['Symbol'], dateObject, trade["Expiration"], Number(trade["Price"]), trade["ID"]);
+                    resolve(tempAnswer);
+                });
+
+                promiseArray.push(promise);
+
             });
 
-            responseObject.topTrade = displayObject.matchingTrades[displayObject.matchingTrades.length - 1];
-            responseObject.totalSize = displayObject.matchingTrades.reduce(function(a, b) {
-                return a + b['Size'];
-            }, 0);
+            Promise.all(promiseArray).then(function(x) {
+                console.log('promises returned', x)
+                for (var i = 0; i < x.length; i++) {
+                    responseObject.outputAllTrades.forEach(function(currentTrades) {
+                        console.log('check');
+                        if (x[i].identity === currentTrades["ID"]) {
+                            console.log('match');
+                            currentTrades.stockPriceInfo = x[i];
+                        }
+                    });
 
-            responseObject.avgPx = 0;
-            displayObject.matchingTrades.forEach(function(trade) {
-                if (trade['Type'] === 'inv') {
-                    responseObject.avgPx += trade['Price'] * -1 * (trade['Size'] / responseObject.totalSize)
-                } else {
-                    responseObject.avgPx += trade['Price'] * (trade['Size'] / responseObject.totalSize)
                 }
-            });
-            // console.log('avg price on this line: ', responseObject.avgPx);
 
+                console.log(responseObject)
+                res.send(200, JSON.stringify(responseObject));
+
+            });
 
         } else {
             console.log('Error, please try again');
             res.send(200, { "error": true });
         }
     }
-
-    // console.log(responseObject);
-
-    res.send(200, JSON.stringify(responseObject));
 });

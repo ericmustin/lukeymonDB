@@ -133,6 +133,16 @@ $(document).ready(function() {
         });
     });
 
+    $('body').on('click', 'li', function(event) {
+        console.log('hello friend')
+        console.log(event);
+    });
+
+    $("#trade").click(function(event) {
+        console.log('hello friendz')
+        console.log(event);
+    });
+
     $('#options').on('change', function() {
         var x = $('option:selected').val();
         $('#symbol').val(x);
@@ -208,23 +218,37 @@ $(document).ready(function() {
 
                     $('#recap').replaceWith('<ul id="recap"></ul>');
                     RECAP = document.getElementById('recap');
+                    var count = 0
                     response.outputAllTrades.forEach(function(trade) {
-                        var $recapDiv = $('<li class="col-12"></li>');
-                        $recapDiv.text(
-                            trade.Symbol +
-                            " " +
-                            trade.Expiration +
-                            " " +
-                            trade.Strike +
-                            " r/c traded " +
-                            trade.Price +
-                            " " + trade.Type +
-                            " " +
-                            trade.Size +
-                            "x. Date: " +
-                            trade.Date
+                        $("#recap").prepend(
+                            $('<li class="col-12" id=' + count + '></li>').text(
+                                trade.Symbol +
+                                " " +
+                                trade.Expiration +
+                                " " +
+                                trade.Strike +
+                                " r/c traded " +
+                                trade.Price +
+                                " " + trade.Type +
+                                " " +
+                                trade.Size +
+                                "x. Date: " +
+                                trade.Date +
+                                " Stock Price Info: Duration: " + 
+                                trade.stockPriceInfo.duration +
+                                " Close: " +
+                                trade.stockPriceInfo.closingPrice +
+                                " Rate: " +
+                                trade.stockPriceInfo.rate
+
+                            )
                         );
-                        $("#recap").prepend($recapDiv);
+                        $('#' + count).attr({
+                            symbol: trade.Symbol,
+                            expiration: trade.Expiration,
+                            strike: trade.Strike
+                        });
+
                     });
                     $("#recap").prepend('<h3 class="col-12" style="font-weight:bold;text-align:center">Trade History</h2>');
                 }
