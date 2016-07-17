@@ -114,8 +114,11 @@
         </div>
         <div class="col-12">
             <div id="title"></div>
-            <ul id="recap"></ul>
-            <div class="col-12" id="tester" style="height:30%;"></div>
+            <ul id="recap" style="list-style:none"></ul>
+            <div class="row">
+                <div class="col-6" id="tester" style="height:30%;"></div>
+                <div class="col-6" id="testerTwo" style="height:30%;"></div>
+            </div>
         </div>
     </div>
 </body>
@@ -155,19 +158,30 @@ $(document).ready(function() {
             symbol: data[0].value
         }).done(function(response, errorHandler) {
             if (errorHandler !== 'success') {
-                console.log('error');
+                console.log('error 1');
                 console.log(errorHandler);
-            } else if (JSON.parse(response).error === true) {
                 $('#tester').replaceWith('<div class="col-12" id="tester" style="height:30%;">Error, please select a valid symbol.</div>')
+                $('#recap').replaceWith('<ul id="recap" style="list-style: none;"></ul>');
+                return;
+            }
+            if (JSON.parse(response).error === true) {
+                console.log('error 2');
+                $('#tester').replaceWith('<div class="col-12" id="tester" style="height:30%;">Error, please select a valid symbol.</div>');
+                $('#recap').replaceWith('<ul id="recap" style="list-style: none;"></ul>');
+                return
             } else {
                 if (response.error) {
+                    console.log('error 3');
                     console.log("response is: ", response.error);
+                    $('#tester').replaceWith('<div class="col-12" id="tester" style="height:30%;">Error, please select a valid symbol.</div>');
+                    $('#recap').replaceWith('<ul id="recap" style="list-style: none;"></ul>');
                 } else {
+                    console.log('success 1');
                     var response = JSON.parse(response);
 
                     var data = [{
-                        x: response.outputIds,
-                        y: response.outputPrices,
+                        x: response.outputAllIds,
+                        y: response.outputAllRates,
                         type: "scatter"
                     }];
                     var axisXTemplate = {
@@ -183,16 +197,46 @@ $(document).ready(function() {
                         zeroline: true,
                         nticks: 10,
                         showline: true,
-                        title: "Price",
+                        title: "Rates",
                         mirror: 'all'
                     };
                     var layout = {
                         xaxis: axisXTemplate,
                         yaxis: axisYTemplate
                     };
-                    $('#tester').replaceWith('<div class="col-12" id="tester" style="height:30%;"></div>');
+
+                    var dataTwo = [{
+                        x: response.outputIds,
+                        y: response.outputPrices,
+                        type: "scatter"
+                    }];
+                    var axisXTemplateTwo = {
+                        showgrid: false,
+                        zeroline: false,
+                        nticks: 1,
+                        showline: true,
+                        title: "Time",
+                        mirror: 'all'
+                    };
+                    var axisYTemplateTwo = {
+                        showgrid: false,
+                        zeroline: true,
+                        nticks: 10,
+                        showline: true,
+                        title: "Price of Last Contract",
+                        mirror: 'all'
+                    };
+                    var layoutTwo = {
+                        xaxis: axisXTemplateTwo,
+                        yaxis: axisYTemplateTwo
+                    };
+                    $('#tester').replaceWith('<div class="col-6" id="tester" style="height:30%;"></div>');
                     TESTER = document.getElementById('tester');
                     Plotly.plot(TESTER, data, layout);
+
+                    $('#testerTwo').replaceWith('<div class="col-6" id="testerTwo" style="height:30%;"></div>');
+                    TESTERTWO = document.getElementById('testerTwo');
+                    Plotly.plot(TESTERTWO, dataTwo, layoutTwo);
 
                     TITLE = document.getElementById('title');
 
@@ -216,7 +260,7 @@ $(document).ready(function() {
 
 
 
-                    $('#recap').replaceWith('<ul id="recap"></ul>');
+                    $('#recap').replaceWith('<ul id="recap" style="list-style: none;"></ul>');
                     RECAP = document.getElementById('recap');
                     var count = 0
                     response.outputAllTrades.forEach(function(trade) {
@@ -232,9 +276,9 @@ $(document).ready(function() {
                                 " " + trade.Type +
                                 " " +
                                 trade.Size +
-                                "x. Date: " +
+                                "x. Date: \n" +
                                 trade.Date +
-                                " Stock Price Info: Duration: " + 
+                                "Duration: " +
                                 trade.stockPriceInfo.duration +
                                 " Close: " +
                                 trade.stockPriceInfo.closingPrice +
@@ -250,7 +294,7 @@ $(document).ready(function() {
                         });
 
                     });
-                    $("#recap").prepend('<h3 class="col-12" style="font-weight:bold;text-align:center">Trade History</h2>');
+                    $("#recap").prepend('<h3 class="col-12" style="font-weight:bold;text-align:center">Trade History</h3>');
                 }
             }
         });

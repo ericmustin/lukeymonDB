@@ -238,6 +238,7 @@ app.post('/api', function(req, res) {
     responseObject.outputAllPrices = [];
     responseObject.outputAllIds = [];
     responseObject.outputAllStrings = [];
+    responseObject.outputAllRates = [];
 
     var validSymbolArray = getTradeSymbols();
 
@@ -326,7 +327,10 @@ app.post('/api', function(req, res) {
                     dateObject.day = Number(trade["Date"].slice(3, 5));
                     dateObject.year = Number(trade["Date"].slice(6, 8));
                     var tempAnswer = calender.stockPriceInfo(trade['Symbol'], dateObject, trade["Expiration"], Number(trade["Price"]), trade["ID"]);
+                    console.log('trying to reject?')
+                    console.log(tempAnswer);                
                     resolve(tempAnswer);
+                    reject(tempAnswer);
                 });
 
                 promiseArray.push(promise);
@@ -337,7 +341,7 @@ app.post('/api', function(req, res) {
                 console.log('promises returned', x)
                 for (var i = 0; i < x.length; i++) {
                     responseObject.outputAllTrades.forEach(function(currentTrades) {
-                        console.log('check');
+                        // console.log('check');
                         if (x[i].identity === currentTrades["ID"]) {
                             console.log('match');
                             currentTrades.stockPriceInfo = x[i];
@@ -345,15 +349,20 @@ app.post('/api', function(req, res) {
                     });
 
                 }
-
-                console.log(responseObject)
+                responseObject.outputAllTrades.forEach(function(currentTrades) {
+                    responseObject.outputAllRates.push(currentTrades.stockPriceInfo.rate);
+                });
+                console.log('successful response')
                 res.send(200, JSON.stringify(responseObject));
 
+            }).catch(function(error) {
+                console.log('catch invoked for: ', error);
+                res.send(200,JSON.stringify({"error": true}));
             });
 
         } else {
             console.log('Error, please try again');
-            res.send(200, { "error": true });
+            res.send(200, JSON.stringify({"error": true}));
         }
     }
 });

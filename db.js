@@ -474,7 +474,7 @@ module.exports = [{ "Date": "04/24/14", "Symbol": "SPY", "Expiration": "Jun", "S
     { "Date": "06/25/14", "Symbol": "CMCSA", "Expiration": "Jul", "Strike": 56, "Price": 0.2, "Type": "inv", "Size": 6500, "ID": 474 },
     { "Date": "06/25/14", "Symbol": "CBS", "Expiration": "Jul", "Strike": 80, "Price": 0.25, "Type": "inv", "Size": 5000, "ID": 475 },
     { "Date": "06/25/14", "Symbol": "FXI", "Expiration": "Sep", "Strike": 45, "Price": 0.02, "Type": "inv", "Size": 5000, "ID": 476 },
-    { "Date": "06/25/14", "Symbol": "CBS", "Expiration": "Jul ", "Strike": 80, "Price": 0.23, "Type": "inv", "Size": 4500, "ID": 477 },
+    { "Date": "06/25/14", "Symbol": "CBS", "Expiration": "Jul", "Strike": 80, "Price": 0.23, "Type": "inv", "Size": 4500, "ID": 477 },
     { "Date": "06/25/14", "Symbol": "CBS", "Expiration": "Jul", "Strike": 80, "Price": 0.21, "Type": "inv", "Size": 4500, "ID": 478 },
     { "Date": "06/25/14", "Symbol": "CBSO", "Expiration": "Jul", "Strike": 45, "Price": 1.1, "Type": "inv", "Size": 3750, "ID": 479 },
     { "Date": "06/25/14", "Symbol": "CBSO", "Expiration": "Jul", "Strike": 45, "Price": 1.05, "Type": "inv", "Size": 3750, "ID": 480 },
