@@ -1,5 +1,7 @@
 node_modules
 npm-debug.log
-database/db.js
+./database/*.js
 database/dbMigrationA.js
 config/config.js
+database
+db

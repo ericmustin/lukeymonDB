@@ -1,4 +1,4 @@
-module.exports = [{ "Date": "04/24/14", "Symbol": "SPY", "Expiration": "Jun", "Strike": 200, "Price": 0.83, "Type": "inv", "Size": 10000, "ID": 1 },
+module.exports= [{ "Date": "04/24/14", "Symbol": "SPY", "Expiration": "Jun", "Strike": 200, "Price": 0.83, "Type": "inv", "Size": 10000, "ID": 1 },
     { "Date": "04/24/14", "Symbol": "IWM", "Expiration": "May", "Strike": 120, "Price": 0.0425, "Type": "inv", "Size": 3000, "ID": 2 },
     { "Date": "04/24/14", "Symbol": "FXI", "Expiration": "Aug", "Strike": 36, "Price": 0.75, "Type": "inv", "Size": 2000, "ID": 3 },
     { "Date": "04/24/14", "Symbol": "EWZ", "Expiration": "May", "Strike": 50, "Price": 0.04, "Type": "inv", "Size": 2000, "ID": 4 },
