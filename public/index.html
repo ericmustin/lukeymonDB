@@ -197,7 +197,7 @@ $(document).ready(function() {
                         zeroline: true,
                         nticks: 10,
                         showline: true,
-                        title: "Rates",
+                        title: "Rates(%)",
                         mirror: 'all'
                     };
                     var layout = {
@@ -283,7 +283,8 @@ $(document).ready(function() {
                                 " Close: " +
                                 trade.stockPriceInfo.closingPrice +
                                 " Rate: " +
-                                trade.stockPriceInfo.rate
+                                trade.stockPriceInfo.rate.toFixed(4) +
+                                "%"
 
                             )
                         );

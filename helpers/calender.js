@@ -105,7 +105,7 @@ var daysTillExpiry = function(tradeDate, expiration) {
 }
 
 var rateCalc = function(vwap, time, premium) {
-  return premium / (time / 365) / vwap
+  return premium / (time / 365) / vwap *100
 };
 
 var stockPriceInfo = function(stock, date, expiration, premium, id) {
