@@ -38,10 +38,12 @@ var calenderNameTable = {
   July: 7,
   july: 7,
   Aug: 8,
+  Aaug: 8,
   Sep: 9,
   Sept: 9,
   Oct: 10,
   Nov: 11,
+  nov: 11,
   Dec: 12
 }
 
@@ -95,8 +97,8 @@ var daysTillExpiry = function(tradeDate, expiration) {
       console.log(expiration.day - tradeDate.day)
       return (expiration.day - tradeDate.day);
     } else {
-      console.log("error")
-      return "error"
+      console.log("error look here: ",expiration.day, " ", tradeDate)
+      return 1
     }
 
   }
@@ -115,6 +117,7 @@ var stockPriceInfo = function(stock, date, expiration, premium, id) {
     console.log("hey look here: ",expiration)
     console.log(formattedMonth)
     console.log(expirationMonth)
+    console.log(expiration,stock,date,id)
     var expirationDay = calender[expirationMonth][1];
 
     var expirationObject = {
@@ -135,19 +138,24 @@ var stockPriceInfo = function(stock, date, expiration, premium, id) {
         console.log(startDate, " ", endDate)
         reject(info);
       } else {
-        console.log('req success')
-        console.log(typeof JSON.parse(response.body).query.results)
-        console.log(typeof JSON.parse(response.body).query)
-        if (JSON.parse(response.body).query.results === null) {
+        // console.log('req success')
+        // console.log(typeof JSON.parse(response.body).query.results)
+        // console.log(typeof JSON.parse(response.body).query)
+        if (JSON.parse(response.body).query === undefined) {
+          console.log("response is: ", JSON.parse(response.body));
           console.log('error xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
           // console.log(startDate, " ", endDate)
           // console.log('response body is: ', JSON.parse(response.body));
           // console.log('response body query is: ', JSON.parse(response.body).query);
           // console.log('response body query results is: ', JSON.parse(response.body).query.results);
           console.log('should reject after');
-          reject(info);
+          
           console.log('i dont think this should log?');
-          return
+          info.closingPrice = 0;
+          info.rate = 0;
+          info.identity = id;
+          resolve(info);
+          return;
           
         }
         console.log(JSON.parse(response.body).query.results);

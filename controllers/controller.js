@@ -1,4 +1,4 @@
-var Trades = require("./database/model.js");
+var Trades = require("../models/model.js");
 
 module.exports = {
     retrieveTrades: function(res) {
